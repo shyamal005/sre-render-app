@@ -3,16 +3,16 @@ import requests
 import time
 import sys
 import datetime
-import os # <-- IMPORT OS
+import os 
 
-# --- Configuration ---
+
 APP_COMMAND = [sys.executable, "app.py"]
 HEALTH_CHECK_URL = "http://127.0.0.1:5000/health"
 CHECK_INTERVAL_SECONDS = 5
-PID_FILE = "app.pid" # <-- ADD THIS
-# ---------------------
+PID_FILE = "app.pid" 
 
-app_process = None # This will now be the LAUNCHER process
+
+app_process = None 
 
 def log(message):
     """Simple logger with timestamps."""
@@ -22,7 +22,7 @@ def log(message):
 def get_app_pid_from_file():
     """Reads the true app PID from the pid file."""
     try:
-        # Give the app a moment to start and write the file
+    
         time.sleep(1) 
         with open(PID_FILE, 'r') as f:
             pid = int(f.read().strip())
@@ -36,19 +36,19 @@ def start_app():
     """Starts the web application as a subprocess."""
     log("Attempting to start application...")
     try:
-        # Clean up old PID file if it exists
+       
         if os.path.exists(PID_FILE):
             os.remove(PID_FILE)
             
         process = subprocess.Popen(APP_COMMAND)
         log(f"Launcher process started (PID: {process.pid}). Waiting for true PID...")
         
-        # Get the true PID
+       
         true_pid = get_app_pid_from_file()
         if not true_pid:
             log("CRITICAL: App started but failed to write PID file.")
             
-        return process # Return the launcher process
+        return proces
     
     except Exception as e:
         log(f"CRITICAL: Failed to start application: {e}")
@@ -63,11 +63,11 @@ def kill_app():
                 pid_to_kill = f.read().strip()
             log(f"Killing process {pid_to_kill} using taskkill...")
             subprocess.call(['taskkill', '/F', '/PID', pid_to_kill])
-            os.remove(PID_FILE) # Clean up
+            os.remove(PID_FILE) 
         else:
             log("No PID file found to kill.")
             
-        # Also terminate the launcher, just in case
+       
         if app_process:
             app_process.terminate()
             
@@ -93,11 +93,11 @@ def run_watchdog():
 
     while True:
         if not check_app_health():
-            # Health check failed! Time to remediate.
+            
             log("REMEDIATING: App is unhealthy or down. Restarting...")
-            kill_app() # Kill the old process using its PID
-            time.sleep(1) # Give it a second
-            app_process = start_app() # Start a new one
+            kill_app() 
+            time.sleep(1) 
+            app_process = start_app() 
         else:
             log("Health check OK.")
             
@@ -106,3 +106,4 @@ def run_watchdog():
 if __name__ == "__main__":
     log("SRE Watchdog is starting...")
     run_watchdog()
+
